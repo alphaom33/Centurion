@@ -11,8 +11,9 @@
 #include <fontlibc.h>
 #include "keyUtils.h"
 #include "ledEncryption.h"
+#include "skewedSlots.h"
 
-#define NUM_SCREENS 7
+#define NUM_SCREENS 2
 
 #define MENU_START 0
 #define MENU_MARGIN 8
@@ -73,7 +74,7 @@ void defaultDraw(Screen* screens) {
 
         gfx_FillRectangle(0, y, GFX_LCD_WIDTH, MENU_HEIGHT);
         gfx_SetTextXY(1, y + 4);
-        gfx_PrintString(screens[0].name);
+        gfx_PrintString(screens[i].name);
         gfx_Sprite(time % 2 ? screens[i].image1 : screens[i].image2, GFX_LCD_WIDTH - SPRITE_WIDTH, y);
         if (i == num) global();
     }
@@ -93,6 +94,7 @@ int main(void) {
 
     Screen screens[NUM_SCREENS];
     makeScreen(&screens[0], "LEDEncryption", LEDEncryptionImage1, LEDEncryptionImage2, initLEDEncryption, procLEDEncryption);
+    makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
     current = NULL;
 
     while (!kb_On) {
