@@ -4,10 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "~/CEdev/include"
+                "~/OneDrive/Documents/CEdev/include"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "D:/ButWhy/HahaProgramFiles/mingw64/mingw64/bin/gcc.exe",
             "cStandard": "c17",
             "cppStandard": "c++14",
             "intelliSenseMode": "linux-clang-x64"

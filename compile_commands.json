@@ -1,0 +1,21 @@
+[
+	{
+		"directory": "C:\\Users\\Jragalphaom33\\src\\Centurion",
+		"arguments": [
+			"-IC:/Users/Jragalphaom33/OneDrive/Documents/CEdev/include",
+			"-Xclang",
+			"-fforce-mangle-main-argc-argv",
+			"-mllvm",
+			"-profile-guided-section-prefix=false",
+			"-DNDEBUG",
+			"-g0",
+			"-Wall",
+			"-Wextra",
+			"-Oz",
+			"src/gfx/global_palette.c",
+			"-o",
+			"obj/src/gfx/global_palette.c.bc"
+		],
+		"file": "src/gfx/global_palette.c"
+	}
+]

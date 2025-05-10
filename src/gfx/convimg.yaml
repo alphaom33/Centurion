@@ -2,12 +2,20 @@ palettes:
   - name: global_palette
     fixed-entries:
       - color: {index: 0, r: 255, g: 0, b: 128}
-      - color: {index: 1, r: 255, g: 255, b: 255}
+      - color: {index: 1, r: 0, g: 0, b: 0}
+      - color: {index: 2, r: 255, g: 255, b: 255}
     images: automatic
-  - name: selected_palette
+  - name: led_encryption
     fixed-entries:
-      - color: {index: 0, r: 255, g: 255, b: 255}
-      - color: {index: 1, r: 255, g: 0, b: 128}
+      - color: {index: 0, r: 255, g: 0, b: 128}
+      - color: {index: 1, r: 0, g: 0, b: 0}
+      - color: {index: 2, r: 255, g: 255, b: 255}
+      - color: {index: 3, r: 255, g: 0, b: 0}
+      - color: {index: 4, r: 0, g: 255, b: 0}
+      - color: {index: 5, r: 0, g: 0, b: 255}
+      - color: {index: 6, r: 255, g: 255, b: 0}
+      - color: {index: 7, r: 255, g: 0, b: 255}
+      - color: {index: 8, r: 255, g: 128, b: 0}
     images: automatic
 
 converts:
@@ -15,14 +23,14 @@ converts:
     palette: global_palette
     transparent-color-index: 0
     images:
-      - oiram.png
-      - icon.png
+      - LEDEncryptionImage1.png
+      - LEDEncryptionImage2.png
 
 outputs:
   - type: c
     include-file: gfx.h
     palettes:
       - global_palette
-      - selected_palette
+      - led_encryption
     converts:
       - sprites
