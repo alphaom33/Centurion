@@ -12,26 +12,16 @@
 #include "keyUtils.h"
 #include "ledEncryption.h"
 #include "skewedSlots.h"
+#include "bombStuff.h"
+#include "graphicsUtils.h"
 
-#define NUM_SCREENS 2
+#define NUM_SCREENS 3
 
 #define MENU_START 0
 #define MENU_MARGIN 8
 #define MENU_HEIGHT 16
 
 #define SPRITE_WIDTH 16
-
-void global() {
-    gfx_SetTextBGColor(1);
-    gfx_SetTextFGColor(2);
-    gfx_SetColor(1);
-}
-
-void selected() {
-    gfx_SetTextBGColor(2);
-    gfx_SetTextFGColor(1);
-    gfx_SetColor(2);
-}
 
 void makeScreen(Screen* screen, const char* name, gfx_sprite_t* image1, gfx_sprite_t* image2, Init init, Proc proc) {
     screen->name = name;
@@ -91,11 +81,13 @@ int main(void) {
     global();
     kb_Scan();
     copyLast();
+    initBombStuff();
 
     Screen screens[NUM_SCREENS];
     makeScreen(&screens[0], "LEDEncryption", LEDEncryptionImage1, LEDEncryptionImage2, initLEDEncryption, procLEDEncryption);
     makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
-    current = NULL;
+    makeScreen(&screens[2], "BombStuff", LEDEncryptionImage1, LEDEncryptionImage2, initBombStuffSetter, procBombStuff);
+    setCurrent(&screens[2]);
 
     while (!kb_On) {
         if (getKey(kb_Data, kb_KeyDel)) {
