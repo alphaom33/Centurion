@@ -2,6 +2,7 @@
 #include "keypadc.h"
 
 uint8_t kb_LastData[20];
+bool alphaed = false;
 
 bool getKeyDown(kb_lkey_t key) {
     return getKey(kb_Data, key) && !getKey(kb_LastData, key);
@@ -11,6 +12,24 @@ void copyLast() {
     for (int i = 0; i < 8; i++) {
         kb_LastData[i] = kb_Data[i];
     }
+}
+
+bool getAlphaed() {
+    return alphaed;
+}
+
+void checkAlpha() {
+    alphaed = getKeyDown(kb_KeyAlpha);
+}
+
+uint8_t getKeypad() {
+    if (getAlphaed()) {
+        if (getLetter() != UINT8_MAX) return getLetter();
+    } else { // technically this could have been else if but I like consistent formatting okay
+        if (getNumber() != UINT8_MAX) return getNumber();
+    }
+
+    return UINT8_MAX;
 }
 
 uint8_t getLetter() {

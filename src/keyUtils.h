@@ -10,4 +10,8 @@ void copyLast();
 uint8_t getLetter();
 uint8_t getNumber();
 
+void checkAlpha();
+bool getAlphaed();
+uint8_t getKeypad();
+
 #endif

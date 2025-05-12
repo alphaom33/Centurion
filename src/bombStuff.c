@@ -43,7 +43,6 @@ void reinitBombStuff(BombStuffSetterData* info) {
 
 void initBombStuff() {
     bombStuff = malloc(sizeof(BombStuff));
-    Indicator dummy = {"DUM", false, NULL};
     bombStuff->numBatteries = UINT8_MAX;
     bombStuff->numBatteryHolders = UINT8_MAX;
 
@@ -66,8 +65,7 @@ void initBombStuffSetter(void** data) {
 }
 
 void moveUp(BombStuffSetterData *info) {
-    switch (info->current)
-    {
+    switch (info->current) {
         case 0: info->current = 3; break;
 
         case 1:
@@ -83,8 +81,7 @@ void moveUp(BombStuffSetterData *info) {
 }
 
 void moveDown(BombStuffSetterData* info) {
-    switch (info->current)
-    {
+    switch (info->current) {
         case 0: info->current++; break;
 
         case 1:
@@ -126,15 +123,18 @@ void drawSerial(BombStuffSetterData* info) {
         if (getKeyDown(kb_Clear)) {
             bombStuff->serial[0] = 0;
         }
-        else if (i < 6 && getLetter() != UINT8_MAX) {
-            bombStuff->serial[i] = getLetter();
+        else if (i < 6 && getKeypad() != UINT8_MAX) {
+            bombStuff->serial[i] = getKeypad();
             i++;
         }
 
         if (i >= SERIAL_LENGTH) {
             moveNext(info);
         } else {
-            gfx_FillRectangle(SERIAL_X + SERIAL_PADDING / 2 + TEXT_WIDTH * i, MARGIN + SERIAL_PADDING / 2, TEXT_WIDTH, TEXT_HEIGHT);
+            gfx_PrintStringXY(
+                SERIAL_X + SERIAL_PADDING / 2 + TEXT_WIDTH * i,
+                MARGIN + SERIAL_PADDING / 2,
+                getAlphaed() ? "\u0000\u2486" : "\u0000\u2588");
         }
     }
 
@@ -210,19 +210,23 @@ const char* indicatorNames[] = {"SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA",
 
 void drawIndicators(BombStuffSetterData* info) {
     if (info->current == 4) {
-        if (getNumber() != UINT8_MAX) {
-            info->selectedIndicator = getNumber();
-        } else if (getKeyDown(kb_KeyEnter)) {
-            bombStuff->indicators[info->selectedIndicator].exists = !bombStuff->indicators[info->selectedIndicator].exists;
+        if (getKeypad() != UINT8_MAX) {
+            uint8_t keypad = getKeypad();
+            info->selectedIndicator = keypad - (keypad < 'A' ? 0 : 'A');
+        }
+
+        Indicator *indicator = &bombStuff->indicators[info->selectedIndicator];
+        if (getKeyDown(kb_KeyEnter)) {
+            indicator->exists = !indicator->exists;
         } else if (getKeyDown(kb_Key2nd)) {
-            bombStuff->indicators[info->selectedIndicator].on = !bombStuff->indicators[info->selectedIndicator].on;
+            indicator->on = !indicator->on;
         }
 
         if (getKeyDown(kb_KeyUp)) {
             info->current = wrap(info->current - 3, NUM_INDICATORS);
         } else if (getKeyDown(kb_KeyRight)) {
             uint8_t x = info->current % 3;
-            info->current = info->current - x +  wrap(x + 1, 3);
+            info->current = info->current - x + wrap(x + 1, 3);
         } else if (getKeyDown(kb_KeyLeft)) {
             uint8_t x = info->current % 3;
             info->current = info->current - x + wrap(x - 1, 3);
@@ -240,11 +244,21 @@ void drawIndicators(BombStuffSetterData* info) {
         gfx_Rectangle(x, y, INDICATOR_WIDTH, INDICATOR_HEIGHT);
 
         char buf[7];
-        if (info->current == 4 && i < 10) sprintf(buf, "%i: %s", i, indicatorNames);
-        else sprintf(buf, "%s", i, indicatorNames);
-        gfx_PrintStringXY((info->current == 3 ? 0 : 14) + x + SERIAL_PADDING / 2, y + SERIAL_PADDING / 2, buf);
+        if (info->current == 4) {
+            sprintf(buf, "%c: %s", i + (i < 10 ? '0' : 'A'), indicatorNames[i]);
+        } else {
+            sprintf(buf, "%s", indicatorNames[i]);
+        }
 
-        gfx_Sprite(bombStuff->indicators[i].on ? LEDEncryptionImage1 : LEDEncryptionImage2, x + INDICATOR_WIDTH - 16 - SERIAL_PADDING, y + INDICATOR_HEIGHT / 2 - 8);
+        gfx_PrintStringXY(
+            buf,
+            (info->current == 3 ? 0 : 14) + x + SERIAL_PADDING / 2,
+            y + SERIAL_PADDING / 2);
+
+        gfx_Sprite(
+            bombStuff->indicators[i].on ? LEDEncryptionImage1 : LEDEncryptionImage2,
+            x + INDICATOR_WIDTH - 16 - SERIAL_PADDING,
+            y + INDICATOR_HEIGHT / 2 - 8);
     }
 
     menuGlobal();
