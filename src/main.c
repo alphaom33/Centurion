@@ -14,6 +14,7 @@
 #include "skewedSlots.h"
 #include "bombStuff.h"
 #include "graphicsUtils.h"
+#include "mathUtils.h"
 
 #define NUM_SCREENS 3
 
@@ -39,10 +40,6 @@ void setCurrent(Screen *newCurrent) {
     free(data);
     current = newCurrent;
     current->init(&data);
-}
-
-int wrap(int num, int max) {
-    return (num % max + max) % max;
 }
 
 void defaultDraw(Screen* screens) {

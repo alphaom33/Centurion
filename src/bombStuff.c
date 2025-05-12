@@ -4,6 +4,7 @@
 #include "keyUtils.h"
 #include "stdio.h"
 #include "gfx/gfx.h"
+#include "mathUtils.h"
 
 #define MARGIN 20
 
@@ -203,10 +204,6 @@ void drawPorts(BombStuffSetterData* info) {
     }
     menuGlobal();
 
-}
-
-uint8_t wrap(uint8_t num, uint8_t max) {
-    return (num % max + max) % max;
 }
 
 const char* indicatorNames[] = {"SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK"};
