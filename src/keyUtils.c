@@ -21,7 +21,7 @@ uint8_t getLetter() {
     else if (getKeyDown(kb_KeySin)) return 'E';
     else if (getKeyDown(kb_KeyCos)) return 'F';
     else if (getKeyDown(kb_KeyTan)) return 'G';
-    else if (getKeyDown(kb_KeySuppr)) return 'H';
+    else if (getKeyDown(kb_KeyPower)) return 'H';
     else if (getKeyDown(kb_KeySquare)) return 'I';
     else if (getKeyDown(kb_KeyComma)) return 'J';
     else if (getKeyDown(kb_KeyLParen)) return 'K';
