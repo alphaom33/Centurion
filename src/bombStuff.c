@@ -32,33 +32,31 @@ BombStuff* bombStuff;
 
 typedef struct {
     uint8_t current;    
+    uint8_t selectedIndicator;
 } BombStuffSetterData;
 
 void reinitBombStuff(BombStuffSetterData* info) {
     info->current = 0;
+    info->selectedIndicator = 0;
 }
 
 void initBombStuff() {
     bombStuff = malloc(sizeof(BombStuff));
     Indicator dummy = {"DUM", false, NULL};
-    bombStuff->indicatorHead = dummy;
     bombStuff->numBatteries = UINT8_MAX;
     bombStuff->numBatteryHolders = UINT8_MAX;
 
-    bombStuff->serial[0] = 0;
-    bombStuff->serial[1] = 0;
-    bombStuff->serial[2] = 0;
-    bombStuff->serial[3] = 0;
-    bombStuff->serial[4] = 0;
-    bombStuff->serial[5] = 0;
-    bombStuff->serial[6] = 0;
+    for (int i = 0; i < SERIAL_LENGTH; i++) {
+        bombStuff->serial[i] = 0;
+    }
 
-    bombStuff->ports[0] = false;
-    bombStuff->ports[1] = false;
-    bombStuff->ports[2] = false;
-    bombStuff->ports[3] = false;
-    bombStuff->ports[4] = false;
-    bombStuff->ports[5] = false;
+    for (int i = 0; i < NUM_PORTS; i++) {
+        bombStuff->ports[i] = false;
+    }
+
+    for (int i = 0; i < NUM_INDICATORS; i++) {
+        bombStuff->indicators[i] = (Indicator){false, false};
+    }
 }
 
 void initBombStuffSetter(void** data) {
@@ -179,6 +177,10 @@ void drawBatteryHolder(BombStuffSetterData* info) {
 const char* portNames[] = {"DVI-D", "PARALLEL", "PS/2", "RJ-45", "SERIAL", "STEREO RCA"};
 
 void drawPorts(BombStuffSetterData* info) {
+    if (info->current == 3 && getNumber() < NUM_PORTS) {
+            bombStuff->ports[getNumber()] = !bombStuff->ports[getNumber()];
+    }
+
     for (int i = 0; i < NUM_PORTS; i++) {
         uint8_t y = SELECTOR_Y + i * PORT_HEIGHT;
 
@@ -201,27 +203,54 @@ void drawPorts(BombStuffSetterData* info) {
     }
     menuGlobal();
 
-    if (info->current == 3) {
-        if (getNumber() < NUM_PORTS) {
-            bombStuff->ports[getNumber()] = !bombStuff->ports[getNumber()];
-        }
-    }
+}
+
+uint8_t wrap(uint8_t num, uint8_t max) {
+    return (num % max + max) % max;
 }
 
 const char* indicatorNames[] = {"SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK"};
 
 void drawIndicators(BombStuffSetterData* info) {
+    if (info->current == 4) {
+        if (getNumber() != UINT8_MAX) {
+            info->selectedIndicator = getNumber();
+        } else if (getKeyDown(kb_KeyEnter)) {
+            bombStuff->indicators[info->selectedIndicator].exists = !bombStuff->indicators[info->selectedIndicator].exists;
+        } else if (getKeyDown(kb_Key2nd)) {
+            bombStuff->indicators[info->selectedIndicator].on = !bombStuff->indicators[info->selectedIndicator].on;
+        }
 
-    Indicator* current = bombStuff->indicatorHead.next;
-    for (int i = 0; current != NULL; i++) {
-        gfx_Rectangle(i % 3, i / 3, INDICATOR_WIDTH, INDICATOR_HEIGHT);
-    }
-
-    if (info->current == 3) {
-        if (getNumber() < NUM_PORTS) {
-            bombStuff->ports[getNumber()] = !bombStuff->ports[getNumber()];
+        if (getKeyDown(kb_KeyUp)) {
+            info->current = wrap(info->current - 3, NUM_INDICATORS);
+        } else if (getKeyDown(kb_KeyRight)) {
+            uint8_t x = info->current % 3;
+            info->current = info->current - x +  wrap(x + 1, 3);
+        } else if (getKeyDown(kb_KeyLeft)) {
+            uint8_t x = info->current % 3;
+            info->current = info->current - x + wrap(x - 1, 3);
+        } else if (getKeyDown(kb_KeyDown)) {
+            info->current = wrap(info->current + 3, NUM_INDICATORS);
         }
     }
+
+    for (int i = 0; i < NUM_INDICATORS; i++) {
+        if (bombStuff->indicators[i].exists) menuSelected();
+        else menuGlobal();
+
+        uint8_t x = INDICATOR_X + INDICATOR_WIDTH * (i % 3);
+        uint8_t y = SELECTOR_Y + INDICATOR_HEIGHT * (i / 3);
+        gfx_Rectangle(x, y, INDICATOR_WIDTH, INDICATOR_HEIGHT);
+
+        char buf[7];
+        if (info->current == 4 && i < 10) sprintf(buf, "%i: %s", i, indicatorNames);
+        else sprintf(buf, "%s", i, indicatorNames);
+        gfx_PrintStringXY((info->current == 3 ? 0 : 14) + x + SERIAL_PADDING / 2, y + SERIAL_PADDING / 2, buf);
+
+        gfx_Sprite(bombStuff->indicators[i].on ? LEDEncryptionImage1 : LEDEncryptionImage2, x + INDICATOR_WIDTH - 16 - SERIAL_PADDING, y + INDICATOR_HEIGHT / 2 - 8);
+    }
+
+    menuGlobal();
 }
 
 void procBombStuff(void* data) {

@@ -6,11 +6,25 @@
 
 #define NUM_PORTS 6
 #define SERIAL_LENGTH 6
+#define NUM_INDICATORS 11
+
+typedef enum {
+    SND,
+    CLR,
+    CAR,
+    IND,
+    FRQ,
+    SIG,
+    NSA,
+    MSA,
+    TRN,
+    BOB,
+    FRK
+} IndicatorNum;
 
 typedef struct {
-    char name[4];
     bool on;
-    Indicator* next;
+    bool exists;
 } Indicator;
 
 typedef enum {
@@ -26,7 +40,7 @@ typedef struct {
     char serial[SERIAL_LENGTH + 1];
     uint8_t numBatteries;
     uint8_t numBatteryHolders;
-    Indicator indicatorHead;
+    Indicator indicators[NUM_INDICATORS];
     bool ports[NUM_PORTS];
 } BombStuff;
 
