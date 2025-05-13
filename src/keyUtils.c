@@ -26,7 +26,7 @@ uint8_t getKeypad() {
     if (getAlphaed()) {
         if (getLetter() != UINT8_MAX) return getLetter();
     } else { // technically this could have been else if but I like consistent formatting okay
-        if (getNumber() != UINT8_MAX) return getNumber();
+        if (getNumber() != UINT8_MAX) return getNumber() + '0';
     }
 
     return UINT8_MAX;

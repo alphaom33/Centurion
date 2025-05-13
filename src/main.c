@@ -97,6 +97,7 @@ int main(void) {
         gfx_SwapDraw();
         copyLast();
         kb_Scan();
+        checkAlpha();
     }
 
     gfx_End();

@@ -132,9 +132,9 @@ void drawSerial(BombStuffSetterData* info) {
             moveNext(info);
         } else {
             gfx_PrintStringXY(
+                getAlphaed() ? "a" : "a\u2588",
                 SERIAL_X + SERIAL_PADDING / 2 + TEXT_WIDTH * i,
-                MARGIN + SERIAL_PADDING / 2,
-                getAlphaed() ? "\u0000\u2486" : "\u0000\u2588");
+                MARGIN + SERIAL_PADDING / 2);
         }
     }
 
@@ -252,7 +252,7 @@ void drawIndicators(BombStuffSetterData* info) {
 
         gfx_PrintStringXY(
             buf,
-            (info->current == 3 ? 0 : 14) + x + SERIAL_PADDING / 2,
+            (info->current == 4 ? 0 : 14) + x + SERIAL_PADDING / 2,
             y + SERIAL_PADDING / 2);
 
         gfx_Sprite(
