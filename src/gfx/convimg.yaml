@@ -25,6 +25,14 @@ converts:
     images:
       - LEDEncryptionImage1.png
       - LEDEncryptionImage2.png
+      - IndicatorOff.png
+      - IndicatorOn.png
+      - DVIDImage.png
+      - ParallelImage.png
+      - PS2Image.png
+      - RJ45Image.png
+      - SerialImage.png
+      - StereoRCAImage.png
 
 outputs:
   - type: c

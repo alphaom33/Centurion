@@ -19,7 +19,7 @@ bool getAlphaed() {
 }
 
 void checkAlpha() {
-    alphaed = getKeyDown(kb_KeyAlpha);
+    if (getKeyDown(kb_KeyAlpha)) alphaed = !alphaed;
 }
 
 uint8_t getKeypad() {

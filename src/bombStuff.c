@@ -25,9 +25,10 @@
 
 #define PORT_HEIGHT (SELECTOR_HEIGHT / NUM_PORTS)
 
+#define INDICATOR_X_NUM 2
 #define INDICATOR_X (GFX_LCD_WIDTH - MARGIN - SELECTOR_WIDTH)
-#define INDICATOR_WIDTH (SELECTOR_WIDTH / 3)
-#define INDICATOR_HEIGHT (SELECTOR_HEIGHT / 4)
+#define INDICATOR_WIDTH (SELECTOR_WIDTH / INDICATOR_X_NUM)
+#define INDICATOR_HEIGHT (16 + SERIAL_PADDING)
 
 BombStuff* bombStuff;
 
@@ -55,7 +56,8 @@ void initBombStuff() {
     }
 
     for (int i = 0; i < NUM_INDICATORS; i++) {
-        bombStuff->indicators[i] = (Indicator){false, false};
+        bombStuff->indicators[i].exists = false;
+        bombStuff->indicators[i].on = false;
     }
 }
 
@@ -131,10 +133,11 @@ void drawSerial(BombStuffSetterData* info) {
         if (i >= SERIAL_LENGTH) {
             moveNext(info);
         } else {
-            gfx_PrintStringXY(
-                getAlphaed() ? "a" : "a\u2588",
+            gfx_FillRectangle(
                 SERIAL_X + SERIAL_PADDING / 2 + TEXT_WIDTH * i,
-                MARGIN + SERIAL_PADDING / 2);
+                MARGIN + SERIAL_PADDING / 2,
+                TEXT_WIDTH,
+                TEXT_HEIGHT);
         }
     }
 
@@ -176,6 +179,7 @@ void drawBatteryHolder(BombStuffSetterData* info) {
 }
 
 const char* portNames[] = {"DVI-D", "PARALLEL", "PS/2", "RJ-45", "SERIAL", "STEREO RCA"};
+const gfx_sprite_t* portSprites[] = {DVIDImage, ParallelImage, PS2Image, RJ45Image, SerialImage, StereoRCAImage};
 
 void drawPorts(BombStuffSetterData* info) {
     if (info->current == 3 && getNumber() < NUM_PORTS) {
@@ -200,7 +204,7 @@ void drawPorts(BombStuffSetterData* info) {
         else sprintf(num, "%s", portNames[i]);
         gfx_PrintString(num);
 
-        gfx_Sprite(LEDEncryptionImage1, CENTER_X - 25, y + (PORT_HEIGHT - 16) / 2);
+        gfx_TransparentSprite(portSprites[i], CENTER_X - 9 - portSprites[i]->width, y + (PORT_HEIGHT - 16) / 2);
     }
     menuGlobal();
 
@@ -212,52 +216,46 @@ void drawIndicators(BombStuffSetterData* info) {
     if (info->current == 4) {
         if (getKeypad() != UINT8_MAX) {
             uint8_t keypad = getKeypad();
-            info->selectedIndicator = keypad - (keypad < 'A' ? 0 : 'A');
+            info->selectedIndicator = keypad - (keypad < 'A' ? '0' : 'A' - 10);
         }
 
         Indicator *indicator = &bombStuff->indicators[info->selectedIndicator];
         if (getKeyDown(kb_KeyEnter)) {
             indicator->exists = !indicator->exists;
-        } else if (getKeyDown(kb_Key2nd)) {
+            if (!indicator->exists) indicator->on = false;
+        } else if (indicator->exists && getKeyDown(kb_Key2nd)) {
             indicator->on = !indicator->on;
         }
-
-        if (getKeyDown(kb_KeyUp)) {
-            info->current = wrap(info->current - 3, NUM_INDICATORS);
-        } else if (getKeyDown(kb_KeyRight)) {
-            uint8_t x = info->current % 3;
-            info->current = info->current - x + wrap(x + 1, 3);
-        } else if (getKeyDown(kb_KeyLeft)) {
-            uint8_t x = info->current % 3;
-            info->current = info->current - x + wrap(x - 1, 3);
-        } else if (getKeyDown(kb_KeyDown)) {
-            info->current = wrap(info->current + 3, NUM_INDICATORS);
-        }
+    } else {
+        info->selectedIndicator = 0;
     }
 
     for (int i = 0; i < NUM_INDICATORS; i++) {
         if (bombStuff->indicators[i].exists) menuSelected();
         else menuGlobal();
 
-        uint8_t x = INDICATOR_X + INDICATOR_WIDTH * (i % 3);
-        uint8_t y = SELECTOR_Y + INDICATOR_HEIGHT * (i / 3);
-        gfx_Rectangle(x, y, INDICATOR_WIDTH, INDICATOR_HEIGHT);
+        uint8_t x = INDICATOR_X + INDICATOR_WIDTH * (i % INDICATOR_X_NUM);
+        uint8_t y = SELECTOR_Y + INDICATOR_HEIGHT * (i / INDICATOR_X_NUM);
+        if (bombStuff->indicators[i].exists) gfx_FillRectangle(x, y, INDICATOR_WIDTH, INDICATOR_HEIGHT);
+        else gfx_Rectangle(x, y, INDICATOR_WIDTH, INDICATOR_HEIGHT);
+
+        if (info->current == 4 && info->selectedIndicator == i) gfx_Rectangle(x + 1, y + 1, INDICATOR_WIDTH - 2, INDICATOR_HEIGHT - 2);
 
         char buf[7];
         if (info->current == 4) {
-            sprintf(buf, "%c: %s", i + (i < 10 ? '0' : 'A'), indicatorNames[i]);
+            sprintf(buf, "%c: %s", i + (i < 10 ? '0' : 'A' - 10), indicatorNames[i]);
         } else {
             sprintf(buf, "%s", indicatorNames[i]);
         }
 
         gfx_PrintStringXY(
             buf,
-            (info->current == 4 ? 0 : 14) + x + SERIAL_PADDING / 2,
-            y + SERIAL_PADDING / 2);
+            (info->current == 4 ? i == 1 : 14) + x + SERIAL_PADDING,
+            y + INDICATOR_HEIGHT / 2 - HALF_TEXT_HEIGHT);
 
-        gfx_Sprite(
-            bombStuff->indicators[i].on ? LEDEncryptionImage1 : LEDEncryptionImage2,
-            x + INDICATOR_WIDTH - 16 - SERIAL_PADDING,
+        gfx_TransparentSprite(
+            bombStuff->indicators[i].on ? IndicatorOn : IndicatorOff,
+            x + INDICATOR_WIDTH - 16 - SERIAL_PADDING / 2,
             y + INDICATOR_HEIGHT / 2 - 8);
     }
 

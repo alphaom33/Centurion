@@ -39,11 +39,15 @@ int num = 0;
 void setCurrent(Screen *newCurrent) {
     free(data);
     current = newCurrent;
-    current->init(&data);
+    if (current != NULL) current->init(&data);
 }
 
 void defaultDraw(Screen* screens) {
     gfx_FillScreen(1);
+
+    if (getNumber() != UINT8_MAX && getNumber() < NUM_SCREENS) {
+        setCurrent(&screens[getNumber()]);
+    }
 
     if (getKeyDown(kb_KeyEnter)) {
         setCurrent(&screens[num]);
@@ -60,8 +64,11 @@ void defaultDraw(Screen* screens) {
         if (i == num) selected();
 
         gfx_FillRectangle(0, y, GFX_LCD_WIDTH, MENU_HEIGHT);
-        gfx_SetTextXY(1, y + 4);
-        gfx_PrintString(screens[i].name);
+        
+        char buf[20];
+        sprintf(buf, "%i: %s", i, screens[i].name);
+        gfx_PrintStringXY(buf, 1, y + 4);
+
         gfx_Sprite(time % 2 ? screens[i].image1 : screens[i].image2, GFX_LCD_WIDTH - SPRITE_WIDTH, y);
         if (i == num) global();
     }
@@ -84,11 +91,10 @@ int main(void) {
     makeScreen(&screens[0], "LEDEncryption", LEDEncryptionImage1, LEDEncryptionImage2, initLEDEncryption, procLEDEncryption);
     makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
     makeScreen(&screens[2], "BombStuff", LEDEncryptionImage1, LEDEncryptionImage2, initBombStuffSetter, procBombStuff);
-    setCurrent(&screens[2]);
 
     while (!kb_On) {
-        if (getKey(kb_Data, kb_KeyDel)) {
-            current = NULL;
+        if (getKeyDown(kb_KeyDel)) {
+            setCurrent(NULL);
         }
 
         if (current == NULL) defaultDraw(screens);
