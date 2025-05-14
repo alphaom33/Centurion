@@ -75,6 +75,13 @@ void defaultDraw(Screen* screens) {
     gfx_SetPalette(global_palette, sizeof_global_palette, 0);
 }
 
+void doProc(Screen* screens) {
+    if (current == NULL) defaultDraw(screens);
+    else current->proc(data);
+
+    gfx_SwapDraw();
+}
+
 /* Main function, called first */
 int main(void) {
     gfx_Begin();
@@ -92,15 +99,21 @@ int main(void) {
     makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
     makeScreen(&screens[2], "BombStuff", LEDEncryptionImage1, LEDEncryptionImage2, initBombStuffSetter, procBombStuff);
 
+    // such a hack but it works okay
+    setCurrent(&screens[0]);
+    doProc(screens);
+    setCurrent(NULL);
+    doProc(screens);
+    setCurrent(&screens[2]);
+    doProc(screens);
+
     while (!kb_On) {
         if (getKeyDown(kb_KeyDel)) {
             setCurrent(NULL);
         }
 
-        if (current == NULL) defaultDraw(screens);
-        else current->proc(data);
+        doProc(screens);
 
-        gfx_SwapDraw();
         copyLast();
         kb_Scan();
         checkAlpha();

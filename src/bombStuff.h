@@ -50,4 +50,7 @@ void initBombStuff();
 void initBombStuffSetter(void** data);
 void procBombStuff(void* data);
 
+uint8_t getLastSerialNumber();
+uint8_t getLargestSerialNumber();
+
 #endif

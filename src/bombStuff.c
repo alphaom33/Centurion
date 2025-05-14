@@ -286,3 +286,24 @@ void procBombStuff(void* data) {
     drawPorts(info);
     drawIndicators(info);
 }
+
+uint8_t getLastSerialNumber() {
+    int i;
+    for (i = SERIAL_LENGTH - 1; i >= 0; i++) {
+        uint8_t toNum = bombStuff->serial[i] - '0';
+        if (toNum < 10) return toNum;
+    }
+
+    return UINT8_MAX;
+}
+
+uint8_t getLargestSerialNumber() {
+    uint8_t max = 0;
+
+    for (int i = 0; i < SERIAL_LENGTH; i++) {
+        uint8_t toNum = bombStuff->serial[i] - '0';
+        if (toNum < 10 && toNum > max) max = toNum;
+    }
+
+    return max;
+}
