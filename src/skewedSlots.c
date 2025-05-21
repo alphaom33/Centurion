@@ -4,6 +4,7 @@
 #include "keyUtils.h"
 #include "bombStuff.h"
 #include "mathUtils.h"
+#include "alloca.h"
 
 #define MARGIN 8
 #define SLOT_WIDTH ((GFX_LCD_WIDTH - MARGIN) / 3)

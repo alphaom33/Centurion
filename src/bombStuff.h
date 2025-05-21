@@ -25,6 +25,7 @@ typedef enum {
 typedef struct {
     bool on;
     bool exists;
+	char name[4];
 } Indicator;
 
 typedef enum {
@@ -52,5 +53,7 @@ void procBombStuff(void* data);
 
 uint8_t getLastSerialNumber();
 uint8_t getLargestSerialNumber();
+
+bool indicatorInSerial(Indicator indicator);
 
 #endif

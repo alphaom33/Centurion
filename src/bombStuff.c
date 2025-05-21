@@ -5,6 +5,8 @@
 #include "stdio.h"
 #include "gfx/gfx.h"
 #include "mathUtils.h"
+#include <stddef.h>
+#include "alloca.h"
 
 #define MARGIN 20
 
@@ -45,6 +47,8 @@ void reinitBombStuff(BombStuffSetterData* info) {
 }
 
 void initBombStuff() {
+	const char indicatorNames[][4] = {"SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK"};
+
     bombStuff = malloc(sizeof(BombStuff));
     bombStuff->numBatteries = UINT8_MAX;
     bombStuff->numBatteryHolders = UINT8_MAX;
@@ -60,6 +64,10 @@ void initBombStuff() {
     for (int i = 0; i < NUM_INDICATORS; i++) {
         bombStuff->indicators[i].exists = false;
         bombStuff->indicators[i].on = false;
+		bombStuff->indicators[i].name[0] = indicatorNames[i][0];
+		bombStuff->indicators[i].name[1] = indicatorNames[i][1];
+		bombStuff->indicators[i].name[2] = indicatorNames[i][2];
+		bombStuff->indicators[i].name[3] = indicatorNames[i][3];
     }
 }
 
@@ -216,8 +224,6 @@ void drawPorts(BombStuffSetterData* info) {
 
 }
 
-const char* indicatorNames[] = {"SND", "CLR", "CAR", "IND", "FRQ", "SIG", "NSA", "MSA", "TRN", "BOB", "FRK"};
-
 void drawIndicators(BombStuffSetterData* info) {
     if (info->current == 4) {
         if (getKeypad() != UINT8_MAX) {
@@ -249,9 +255,9 @@ void drawIndicators(BombStuffSetterData* info) {
 
         char buf[7];
         if (info->current == 4) {
-            sprintf(buf, "%c: %s", i + (i < 10 ? '0' : 'A' - 10), indicatorNames[i]);
+            sprintf(buf, "%c: %s", i + (i < 10 ? '0' : 'A' - 10), bombStuff->indicators[i].name);
         } else {
-            sprintf(buf, "%s", indicatorNames[i]);
+            sprintf(buf, "%s", bombStuff->indicators[i].name);
         }
 
         gfx_PrintStringXY(
@@ -312,4 +318,13 @@ uint8_t getLargestSerialNumber() {
     }
 
     return max;
+}
+
+bool indicatorInSerial(Indicator indicator) {
+	for (int i = 0; i < SERIAL_LENGTH; i++) {
+		for (int k = 0; k < 3; k++) {
+			if (indicator.exists && bombStuff->serial[i] == indicator.name[k]) return true;
+		}
+	}
+	return false;
 }
