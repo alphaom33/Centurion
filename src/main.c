@@ -1,5 +1,7 @@
 #include <ti/screen.h>
 #include <ti/getcsc.h>
+#include "gfx/LEDEncryptionImage1.h"
+#include "gfx/LEDEncryptionImage2.h"
 #include "graphx.h"
 #include "screen.h"
 #include "ledEncryption.h"
@@ -16,7 +18,7 @@
 #include "graphicsUtils.h"
 #include "mathUtils.h"
 
-#define NUM_SCREENS 3
+#define NUM_SCREENS 4
 
 #define MENU_START 0
 #define MENU_MARGIN 8
@@ -47,6 +49,8 @@ void defaultDraw(Screen* screens) {
 
     if (getNumber() != UINT8_MAX && getNumber() < NUM_SCREENS) {
         setCurrent(&screens[getNumber()]);
+        num = 0;
+        return;
     }
 
     if (getKeyDown(kb_KeyEnter)) {
@@ -75,6 +79,21 @@ void defaultDraw(Screen* screens) {
     gfx_SetPalette(global_palette, sizeof_global_palette, 0);
 }
 
+void initLetterDisp(void** info) {
+    (void)info;
+}
+
+void procLetterDisp(void* info) {
+    (void)info;
+    
+    gfx_FillScreen(1);
+    for (int i = 0; i < 26; i++) {
+        char buf[4];
+        sprintf(buf, "%c %d", i + 'A', i);
+        gfx_PrintStringXY(buf, 0, i * TEXT_HEIGHT);
+    }
+}
+
 void doProc(Screen* screens) {
     if (current == NULL) defaultDraw(screens);
     else current->proc(data);
@@ -98,6 +117,7 @@ int main(void) {
     makeScreen(&screens[0], "LEDEncryption", LEDEncryptionImage1, LEDEncryptionImage2, initLEDEncryption, procLEDEncryption);
     makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
     makeScreen(&screens[2], "BombStuff", LEDEncryptionImage1, LEDEncryptionImage2, initBombStuffSetter, procBombStuff);
+    makeScreen(&screens[3], "LetterDisp", LEDEncryptionImage1, LEDEncryptionImage2, initLetterDisp, procLetterDisp);
 
     // such a hack but it works okay
     setCurrent(&screens[0]);

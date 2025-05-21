@@ -28,7 +28,7 @@ void initSkewedSlots(void** data) {
 }
 
 int getPos(int i) {
-    return MARGIN + i * SLOT_WIDTH;
+    return MARGIN / 2 + i * SLOT_WIDTH;
 }
 
 void calcFinal(SkewedSlotsData* info) {
@@ -46,14 +46,14 @@ void calcFinal(SkewedSlotsData* info) {
         if (finalNums[i] == 7) finalNums[i] = 0;
         finalNums[i] += numIndicators;
 
-        if (finalNums[i] % 3 == 0) finalNums[i] += 3;
+        if (finalNums[i] % 3 == 0) finalNums[i] += 4;
         else if (finalNums[i] > 7) finalNums[i] *= 2;
         else if (finalNums[i] < 3 && isEven(finalNums[i])) finalNums[i] /= 2;
         else if (bombStuff->ports[STEREO_RCA] || bombStuff->ports[PS2]) continue;
         else finalNums[i] = info->nums[i] + bombStuff->numBatteries;
     }
 
-    if (finalNums[0] > 5 && finalNums[0] % 2 == 0) finalNums[0] /= 2;
+    if (finalNums[0] > 5 && isEven(finalNums[0])) finalNums[0] /= 2;
     else if (isPrime(finalNums[0])) finalNums[0] += getLastSerialNumber();
     else if (bombStuff->ports[PARALLEL]) finalNums[0] *= -1;
     else if (!isEven(info->nums[1])) {}
@@ -72,7 +72,7 @@ void calcFinal(SkewedSlotsData* info) {
 
     for (int i = 0; i < 3; i++) {
         while (finalNums[i] > 9) finalNums[i] -= 10;
-        while (finalNums[i] < 0) finalNums[i] += 9;
+        while (finalNums[i] < 0) finalNums[i] += 10;
 
         info->nums[i] = finalNums[i];
     }
@@ -81,11 +81,11 @@ void calcFinal(SkewedSlotsData* info) {
 void drawGetter(SkewedSlotsData* info) {
     int i;
     for (i = 0; i < 3 && info->nums[i] != UINT8_MAX; i++) {
-        gfx_SetTextXY(getPos(i) + MIDDLE_OFFSET_X, MARGIN + MIDDLE_OFFSET_Y);
+        gfx_SetTextXY(getPos(i) + MIDDLE_OFFSET_X, MARGIN / 2 + MIDDLE_OFFSET_Y);
         gfx_PrintInt(info->nums[i], 1);
     }
 
-    if (i < 3) gfx_FillRectangle(getPos(i) + MIDDLE_OFFSET_X, MARGIN + MIDDLE_OFFSET_Y, TEXT_WIDTH, TEXT_HEIGHT);
+    if (i < 3) gfx_FillRectangle(getPos(i) + MIDDLE_OFFSET_X, MARGIN / 2 + MIDDLE_OFFSET_Y, TEXT_WIDTH, TEXT_HEIGHT);
 }
 
 void procSkewedSlots(void* data) {
@@ -98,7 +98,7 @@ void procSkewedSlots(void* data) {
     gfx_FillScreen(1);
     gfx_SetColor(2);
     for (int i = 0; i < 3; i++) {
-        gfx_Rectangle(getPos(i), MARGIN, SLOT_WIDTH, SLOT_HEIGHT);
+        gfx_Rectangle(getPos(i), MARGIN / 2, SLOT_WIDTH, SLOT_HEIGHT);
     }
 
     if (getNumber() != UINT8_MAX) {

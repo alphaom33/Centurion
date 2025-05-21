@@ -34,11 +34,13 @@ BombStuff* bombStuff;
 
 typedef struct {
     uint8_t current;    
+    uint8_t serialDst;
     uint8_t selectedIndicator;
 } BombStuffSetterData;
 
 void reinitBombStuff(BombStuffSetterData* info) {
     info->current = 0;
+    info->serialDst = 0;
     info->selectedIndicator = 0;
 }
 
@@ -47,7 +49,7 @@ void initBombStuff() {
     bombStuff->numBatteries = UINT8_MAX;
     bombStuff->numBatteryHolders = UINT8_MAX;
 
-    for (int i = 0; i < SERIAL_LENGTH; i++) {
+    for (int i = 0; i < SERIAL_LENGTH + 1; i++) {
         bombStuff->serial[i] = 0;
     }
 
@@ -122,28 +124,32 @@ void drawSerial(BombStuffSetterData* info) {
     for (i = 0; bombStuff->serial[i] != 0; i++);
 
     if (info->current == 0) {
-        if (getKeyDown(kb_Clear)) {
-            bombStuff->serial[0] = 0;
+        if (getKeyDown(kb_KeyClear)) {
+            info->serialDst -= getOffset(bombStuff->serial[i - 1]);
+            bombStuff->serial[i - 1] = 0;
+            i--;
         }
-        else if (i < 6 && getKeypad() != UINT8_MAX) {
-            bombStuff->serial[i] = getKeypad();
-            i++;
-        }
+        if (i < 6) {
+            if (getKeypad() != UINT8_MAX) {
+                uint8_t keypad = getKeypad();
+                bombStuff->serial[i] = keypad;
+                i++;
+                info->serialDst += getOffset(keypad);
 
-        if (i >= SERIAL_LENGTH) {
-            moveNext(info);
-        } else {
+                if (i >= SERIAL_LENGTH) {
+                    moveNext(info);
+                    return;
+                }
+            }
             gfx_FillRectangle(
-                SERIAL_X + SERIAL_PADDING / 2 + TEXT_WIDTH * i,
-                MARGIN + SERIAL_PADDING / 2,
-                TEXT_WIDTH,
-                TEXT_HEIGHT);
+                    SERIAL_X + SERIAL_PADDING / 2 + info->serialDst,
+                    MARGIN + SERIAL_PADDING / 2,
+                    TEXT_WIDTH,
+                    TEXT_HEIGHT);
         }
     }
 
-    gfx_SetTextXY(SERIAL_X + SERIAL_PADDING / 2, MARGIN + SERIAL_PADDING / 2);
-    gfx_PrintString(bombStuff->serial);
-
+    gfx_PrintStringXY(bombStuff->serial, SERIAL_X + SERIAL_PADDING / 2, MARGIN + SERIAL_PADDING / 2);
 }
 
 void drawBattery(BombStuffSetterData* info) {

@@ -24,3 +24,7 @@ void menuSelected() {
     gfx_SetTextFGColor(1);
     gfx_SetTextBGColor(2);
 }
+
+uint8_t getOffset(char c) {
+    return c == '1' ? NUMBER_WIDTH : TEXT_WIDTH;
+}

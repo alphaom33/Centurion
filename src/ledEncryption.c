@@ -16,7 +16,7 @@
 #define RAINBOW_MARGIN_X 8
 #define RAINBOW_MARGIN_Y 12
 #define RAINBOW_X (CENTER_X - (RAINBOW_WIDTH + RAINBOW_MARGIN_X) / 2)
-#define RAINBOW_Y (CENTER_Y + 10)
+#define RAINBOW_Y (CENTER_Y - (RAINBOW_HEIGHT + RAINBOW_MARGIN_Y) / 2)
 #define RAINBOW_BAR_WIDTH (RAINBOW_WIDTH - 2 * TEXT_WIDTH)
 #define RAINBOW_BAR_HEIGHT (RAINBOW_HEIGHT / 6)
 #define RAINBOW_BAR_X (CENTER_X - RAINBOW_BAR_WIDTH / 2 - TEXT_WIDTH)
@@ -52,16 +52,17 @@ uint8_t solveLEDEncryption(LEDEncryption* info) {
     return 'x';
 }
 
-void drawRainbow() {
+void drawRainbow(bool current) {
     gfx_SetColor(1);
     gfx_FillRectangle(RAINBOW_X, RAINBOW_Y, RAINBOW_WIDTH + RAINBOW_MARGIN_X, RAINBOW_HEIGHT + RAINBOW_MARGIN_Y);
     gfx_SetColor(2);
     gfx_Rectangle(RAINBOW_X, RAINBOW_Y, RAINBOW_WIDTH + RAINBOW_MARGIN_X, RAINBOW_HEIGHT + RAINBOW_MARGIN_Y);
     for (int i = 0; i < 6; i++) {
-        gfx_SetTextXY(RAINBOW_BAR_X, RAINBOW_BAR_Y + i * RAINBOW_BAR_HEIGHT);
-        char buf[3];
-        sprintf(buf, "%d:", i);
-        gfx_PrintString(buf);
+        if (current) {
+            char buf[3];
+            sprintf(buf, "%d:", i);
+            gfx_PrintStringXY(buf, RAINBOW_BAR_X, RAINBOW_BAR_Y + i * RAINBOW_BAR_HEIGHT);
+        }
 
         gfx_SetColor(i + 3);
         gfx_FillRectangle(RAINBOW_BAR_X + TEXT_WIDTH * 2, RAINBOW_BAR_Y + i * RAINBOW_BAR_HEIGHT, RAINBOW_BAR_WIDTH, RAINBOW_BAR_HEIGHT);
@@ -111,10 +112,10 @@ void procLEDEncryption(void* data) {
     gfx_Rectangle(LED_ENCRYPTION_MARGIN, LED_ENCRYPTION_MARGIN + height, width, height);
     gfx_Rectangle(LED_ENCRYPTION_MARGIN + width, LED_ENCRYPTION_MARGIN + height, width, height);
 
-    gfx_SetColor(1);
-    gfx_FillRectangle(CENTER_X - LED_ENCRYPTION_CENTER_WIDTH / 2, CENTER_Y - LED_ENCRYPTION_CENTER_HEIGHT / 2, LED_ENCRYPTION_CENTER_WIDTH, LED_ENCRYPTION_CENTER_HEIGHT);
-    gfx_SetColor(2);
-    gfx_Rectangle(CENTER_X - LED_ENCRYPTION_CENTER_WIDTH / 2, CENTER_Y - LED_ENCRYPTION_CENTER_HEIGHT / 2, LED_ENCRYPTION_CENTER_WIDTH, LED_ENCRYPTION_CENTER_HEIGHT);
+    // gfx_SetColor(1);
+    // gfx_FillRectangle(CENTER_X - LED_ENCRYPTION_CENTER_WIDTH / 2, CENTER_Y - LED_ENCRYPTION_CENTER_HEIGHT / 2, LED_ENCRYPTION_CENTER_WIDTH, LED_ENCRYPTION_CENTER_HEIGHT);
+    // gfx_SetColor(2);
+    // gfx_Rectangle(CENTER_X - LED_ENCRYPTION_CENTER_WIDTH / 2, CENTER_Y - LED_ENCRYPTION_CENTER_HEIGHT / 2, LED_ENCRYPTION_CENTER_WIDTH, LED_ENCRYPTION_CENTER_HEIGHT);
 
     int i;
     for (i = 0; i < 4 && info->nums[i] != UINT8_MAX; i++) {
@@ -122,13 +123,15 @@ void procLEDEncryption(void* data) {
         gfx_PrintChar(info->nums[i] + 'A');
     }
 
+    bool rainbowing = false;;
     if (info->multiplier != UINT8_MAX) {
         gfx_SetTextXY(CENTER_X - HALF_TEXT_WIDTH, CENTER_Y - HALF_TEXT_HEIGHT);
         gfx_PrintInt(info->multiplier, 1);
     } else if (info->nums[3] == UINT8_MAX) {
-        gfx_FillRectangle(centerX[i] - HALF_TEXT_WIDTH, centerY[i] - HALF_TEXT_HEIGHT, 4, 8);
+        gfx_FillRectangle(centerX[i] - HALF_TEXT_WIDTH, centerY[i] - HALF_TEXT_HEIGHT, TEXT_WIDTH, TEXT_HEIGHT);
     } else {
-        gfx_FillRectangle(CENTER_X - HALF_TEXT_WIDTH, CENTER_Y - HALF_TEXT_HEIGHT, 4, 8);
-        drawRainbow();
+        rainbowing = true;
     }
+
+    drawRainbow(rainbowing);
 }
