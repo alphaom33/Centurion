@@ -9,9 +9,7 @@
 #define BOX_WIDTH ((GFX_LCD_WIDTH - 8) / 3)
 #define BOX_HEIGHT ((GFX_LCD_HEIGHT - 8) / 2)
 
-typedef struct {
-	uint8_t nums[6];
-} SafetySafe;
+uint8_t nums[6];
 
 uint8_t table[][6] = {
 	['A'] = {8, 	3, 	4, 	8, 	9, 	0},
@@ -52,50 +50,48 @@ uint8_t table[][6] = {
 	['9'] = {3, 	8, 	2, 	9, 	4, 	9},
 };
 
-void reinitSafetySafe(SafetySafe* info) {
-	/*int ports = 0;*/
-	/*for (int i = 0; i < NUM_PORTS; i++) {*/
-	/*	if (bombStuff->ports[i]) ports++;*/
-	/*}*/
+void reinitSafetySafe() {
+	int ports = 0;
+	for (int i = 0; i < NUM_PORTS; i++) {
+		if (bombStuff->ports[i]) ports++;
+	}
 
-	/*uint8_t indicatorsOnInSerial = 0;*/
-	/*uint8_t indicatorsOffInSerial = 0;*/
-	/*for (int i = 0; i < NUM_INDICATORS; i++) {*/
-	/*	if (bombStuff->indicators[i].exists && indicatorInSerial(bombStuff->indicators[i])) {*/
-	/*		if (bombStuff->indicators[i].on) indicatorsOnInSerial++;*/
-	/*		else indicatorsOffInSerial++;*/
-	/*	}*/
-	/*}*/
-	/**/
-	/*uint8_t num = 0;*/
-	/**/
-	/*num += ports * 7;*/
-	/*num += indicatorsOnInSerial * 5;*/
-	/*num += indicatorsOffInSerial;*/
-	/**/
-	/*info->nums[5] = num;*/
-	/*for (int i = 0; i < 5; i++) {*/
-	/*	info->nums[i] = table[(uint8_t)bombStuff->serial[i]][i] + num;*/
-	/*	info->nums[5] = table[(uint8_t)bombStuff->serial[i]][i];*/
-	/*}*/
-	/*info->nums[5] = table[(uint8_t)bombStuff->serial[5]][5];*/
+	uint8_t indicatorsOnInSerial = 0;
+	uint8_t indicatorsOffInSerial = 0;
+	for (int i = 0; i < NUM_INDICATORS; i++) {
+		if (bombStuff->indicators[i].exists && indicatorInSerial(bombStuff->indicators[i])) {
+			if (bombStuff->indicators[i].on) indicatorsOnInSerial++;
+			else indicatorsOffInSerial++;
+		}
+	}
+
+	uint8_t num = 0;
+
+	num += ports * 7;
+	num += indicatorsOnInSerial * 5;
+	num += indicatorsOffInSerial;
+
+	nums[5] = num;
+	for (int i = 0; i < 5; i++) {
+		nums[i] = (table[(uint8_t)bombStuff->serial[i]][i] + num) % 12;
+		nums[5] += table[(uint8_t)bombStuff->serial[i]][5];
+	}
+	nums[5] += table[(uint8_t)bombStuff->serial[5]][5];
+	nums[5] %= 12;
 }
 
 void initSafetySafe(void** data) {
-    *data = malloc(sizeof(SafetySafe));
-	/*reinitSafetySafe((SafetySafe*)*data);*/
+	reinitSafetySafe();
 }
 
 void procSafetySafe(void* data) {
-	/*SafetySafe* info = (SafetySafe*)data;*/
-
 	gfx_FillScreen(1);
-	/*for (int x = 0; x < 3; x++) {*/
-	/*	for (int y = 0; y < 2; y++) {*/
-	/*		gfx_Rectangle(MARGIN + BOX_WIDTH * x, MARGIN + BOX_HEIGHT * y, BOX_WIDTH, BOX_HEIGHT);*/
-	/*		gfx_SetTextXY(MARGIN + BOX_WIDTH * x + BOX_WIDTH / 2, MARGIN + BOX_HEIGHT * y + BOX_HEIGHT / 2);*/
-	/*		gfx_PrintInt(info->nums[x + y * 3], 1);*/
-	/*	}*/
-	/*}*/
-	gfx_SwapDraw();
+	gfx_SetColor(2);
+	for (int x = 0; x < 3; x++) {
+		for (int y = 0; y < 2; y++) {
+			gfx_Rectangle(MARGIN + BOX_WIDTH * x, MARGIN + BOX_HEIGHT * y, BOX_WIDTH, BOX_HEIGHT);
+			gfx_SetTextXY(MARGIN + BOX_WIDTH * x + BOX_WIDTH / 2 - TEXT_WIDTH, MARGIN + BOX_HEIGHT * y + BOX_HEIGHT / 2);
+			gfx_PrintInt(nums[x + y * 3], 2);
+		}
+	}
 }

@@ -14,4 +14,9 @@ bool isEven(int8_t num);
 
 int8_t addBinaryDigits(int8_t num);
 
+bool isSquare(int8_t num);
+
+int8_t maxArray(int8_t* nums, uint8_t length);
+uint8_t maxArrayUnsigned(uint8_t* nums, uint8_t length);
+
 #endif

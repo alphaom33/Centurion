@@ -1,0 +1,115 @@
+#include "morsematics.h"
+#include "graphicsUtils.h"
+#include "bombStuff.h"
+#include "mathUtils.h"
+#include "stdlib.h"
+#include <stdint.h>
+#include "keyUtils.h"
+#include "graphx.h"
+
+#define MARGIN 8
+#define BOX_WIDTH ((GFX_LCD_WIDTH - MARGIN * 2) / 3)
+#define BOX_HEIGHT ((GFX_LCD_HEIGHT - MARGIN * 2))
+
+typedef struct {
+	uint8_t num;
+	uint8_t chars[3];
+} MorsematicsData;
+
+void checkMatches(MorsematicsData* info, uint8_t* num1, uint8_t* num2) {
+	for (int k = 0; k < NUM_INDICATORS; k++) {
+		if (!bombStuff->indicators[k].exists) continue;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				if (bombStuff->indicators[k].name[i] == info->chars[j]) {
+					if (bombStuff->indicators[k].on) *num1 += 1;
+					else *num2 += 1;
+				}
+			}
+		}
+	}
+}
+
+uint8_t toNum(char c) {
+	if (c == '0') return 26;
+	else if (c < 'A') return c - '0';
+	else return c - 'A' + 1;
+}
+
+uint8_t weirdWrap(uint8_t num) {
+	return wrap(num - 1, 26) + 1;
+}
+
+void calcChar(MorsematicsData* info) {
+	uint8_t num1 = bombStuff->serial[3];
+	uint8_t num2 = bombStuff->serial[4];
+
+	checkMatches(info, &num1, &num2);
+	num1 = weirdWrap(num1);
+	num2 = weirdWrap(num2);
+
+	if (isSquare((int8_t)(num1 + num2))) num1 += 4;
+	else num2 += 4;
+
+	num1 += maxArrayUnsigned(info->chars, 3);
+
+	for (int i = 0; i < 3; i++) {
+		if (isPrime(info->chars[i])) num1 -= info->chars[i];
+		if (isSquare(info->chars[i])) num2 -= info->chars[i];
+		if (bombStuff->numBatteries > 0 && info->chars[i] % bombStuff->numBatteries == 0) {
+			num1 += info->chars[i];
+			num2 += info->chars[i];
+		}
+	}
+
+	info->num = weirdWrap(num1 == num2 ? num1 : num1 > num2 ? num1 - num2 : num1 + num2) - 1 + 'A';
+}
+
+void reinitMorsematics(MorsematicsData* info) {
+	info->num = UINT8_MAX;
+
+	info->chars[0] = UINT8_MAX;
+	info->chars[1] = UINT8_MAX;
+	info->chars[2] = UINT8_MAX;
+}
+
+void initMorsematics(void** data) {
+	*data = malloc(sizeof(MorsematicsData));
+	reinitMorsematics((MorsematicsData*)*data);
+}
+
+void procMorsematics(void* data) {
+	MorsematicsData* info = (MorsematicsData*)data;
+	int current = 0;
+	for (current = 0; info->chars[current] != UINT8_MAX && current < 3; current++);
+
+	gfx_FillScreen(1);
+	gfx_SetColor(2);
+
+
+	if (current < 3 && getLetter() != UINT8_MAX) {
+		info->chars[current] = getLetter();
+		if (current == 2) calcChar(info);
+	}
+
+	if (info->num != UINT8_MAX) {
+		gfx_SetTextXY(CENTER_X - HALF_TEXT_WIDTH, CENTER_Y - HALF_TEXT_HEIGHT);
+		gfx_PrintChar(info->num);
+
+		if (getKeyDown(kb_KeyEnter)) reinitMorsematics(info);
+
+		return;
+	} else if (getKeyDown(kb_KeyClear)) {
+		info->chars[current - 1] = UINT8_MAX;
+	}
+
+
+	for (int i = 0; i < 3; i++) {
+		uint8_t x = MARGIN + BOX_WIDTH * i;
+		gfx_Rectangle(x, MARGIN, BOX_WIDTH, BOX_HEIGHT);
+		if (info->chars[i] != UINT8_MAX) {
+			gfx_SetTextXY(x + BOX_WIDTH / 2 - HALF_TEXT_WIDTH, MARGIN + BOX_HEIGHT / 2 - HALF_TEXT_HEIGHT);
+			gfx_PrintChar(info->chars[i]);
+		}
+	}
+}
