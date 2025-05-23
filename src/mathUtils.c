@@ -1,4 +1,5 @@
 #include "mathUtils.h"
+#include "stdio.h"
 
 const int8_t fibonaccis[] = {1, 1, 2, 3, 5, 8, 13, 21};
 
@@ -59,4 +60,30 @@ uint8_t maxArrayUnsigned(uint8_t* nums, uint8_t length) {
 	}
 
 	return max;
+}
+
+int8_t pow(int8_t a, int8_t b) {
+	int8_t out = 1;
+	for (int i = 0; i < b; i++) {
+		out *= a;
+	}
+
+	return out;
+}
+
+uint8_t powUnsigned(uint8_t a, uint8_t b) {
+	uint8_t out = 1;
+	for (int i = 0; i < b; i++) {
+		out *= a;
+	}
+	
+	return out;
+}
+
+void itoa(int8_t num, char* buf) {
+	sprintf(buf, "%d", num);
+}
+
+void itoaUnsigned(uint8_t num, char* buf) {
+	sprintf(buf, "%u", num);
 }

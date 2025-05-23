@@ -19,4 +19,10 @@ bool isSquare(int8_t num);
 int8_t maxArray(int8_t* nums, uint8_t length);
 uint8_t maxArrayUnsigned(uint8_t* nums, uint8_t length);
 
+int8_t pow(int8_t a, int8_t b);
+uint8_t powUnsigned(uint8_t a, uint8_t b);
+
+void itoa(int8_t num, char* buf);
+void itoaUnsigned(uint8_t num, char* buf);
+
 #endif
