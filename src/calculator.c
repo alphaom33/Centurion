@@ -7,7 +7,7 @@
 #include "stdbool.h"
 #include "mathUtils.h"
 
-#define INTEGER_LENGTH 4
+#define INTEGER_LENGTH 8
 #define NUM_DATAS 10
 
 typedef struct {
@@ -41,14 +41,14 @@ void initCalculator(void** data) {
 	currentNum = 0;
 }
 
-int8_t pop() {
-	int8_t out = atoi(datas[currentNum].integerPart);
+int pop() {
+	int out = atoi(datas[currentNum].integerPart);
 	initData(currentNum);
 	if (currentNum > 0) currentNum--;
 	return out;
 }
-void push(int8_t num) {
-	itoaUnsigned((uint8_t)num, datas[currentNum].integerPart);
+void push(int num) {
+	itoaUnsignedInt((unsigned int)num, datas[currentNum].integerPart);
 	datas[currentNum].positive = num >= 0;
 }
 
@@ -73,8 +73,8 @@ void procCalculator(void* data) {
 
 		if (currentNum > 0) {
 #define BINARY_OP(op) do { \
-	int8_t num2 = pop(); \
-	int8_t num1 = pop(); \
+	int num2 = pop(); \
+	int num1 = pop(); \
 	if (currentNum != 0) currentNum++; \
 	push(num1 op num2); \
 } while (false)
@@ -83,8 +83,8 @@ void procCalculator(void* data) {
 			else if (getKeyDown(kb_KeyMul)) {BINARY_OP(*);}
 			else if (getKeyDown(kb_KeyDiv)) {BINARY_OP(/);}
 			else if (getKeyDown(kb_KeyPower)) {
-				int8_t num2 = pop();
-				int8_t num1 = pop();
+				int num2 = pop();
+				int num1 = pop();
 				push(pow(num1, num2));
 			}
 		}

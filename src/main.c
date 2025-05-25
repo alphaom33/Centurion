@@ -2,6 +2,7 @@
 #include <ti/getcsc.h>
 #include "gfx/LEDEncryptionImage1.h"
 #include "gfx/LEDEncryptionImage2.h"
+#include "gfx/SkewedSlots1.h"
 #include "graphx.h"
 #include "screen.h"
 #include "ledEncryption.h"
@@ -76,7 +77,7 @@ void defaultDraw(Screen* screens) {
         sprintf(buf, "%i: %s", i, screens[i].name);
         gfx_PrintStringXY(buf, 1, y + 4);
 
-        gfx_Sprite(time % 2 ? screens[i].image1 : screens[i].image2, GFX_LCD_WIDTH - SPRITE_WIDTH, y);
+        gfx_TransparentSprite(time % 2 ? screens[i].image1 : screens[i].image2, GFX_LCD_WIDTH - SPRITE_WIDTH, y);
         if (i == num) global();
     }
     gfx_SetPalette(global_palette, sizeof_global_palette, 0);
@@ -91,8 +92,8 @@ void procLetterDisp(void* info) {
     
     gfx_FillScreen(1);
     for (int i = 0; i < 26; i++) {
-        char buf[4];
-        sprintf(buf, "%c %d", i + 'A', i);
+        char buf[10];
+        sprintf(buf, "%02d  %c  %02d", i + 1, i + 'A', i);
         gfx_PrintStringXY(buf, 0, i * TEXT_HEIGHT);
     }
 }
@@ -104,8 +105,16 @@ void doProc(Screen* screens) {
     gfx_SwapDraw();
 }
 
-/* Main function, called first */
-int main(void) {
+void testMain(void) {
+	initBombStuff();
+	os_ClrHome();
+
+	testMatches();
+
+	while (!os_GetCSC());
+}
+
+void runMain(void) {
     gfx_Begin();
     gfx_SetDrawBuffer();
     gfx_SetPalette(global_palette, sizeof_global_palette, 0);
@@ -118,12 +127,12 @@ int main(void) {
 
     Screen screens[NUM_SCREENS];
     makeScreen(&screens[0], "LEDEncryption", LEDEncryptionImage1, LEDEncryptionImage2, initLEDEncryption, procLEDEncryption);
-    makeScreen(&screens[1], "SkewedSlots", LEDEncryptionImage1, LEDEncryptionImage2, initSkewedSlots, procSkewedSlots);
-    makeScreen(&screens[2], "BombStuff", LEDEncryptionImage1, LEDEncryptionImage2, initBombStuffSetter, procBombStuff);
-    makeScreen(&screens[3], "LetterDisp", LEDEncryptionImage1, LEDEncryptionImage2, initLetterDisp, procLetterDisp);
-    makeScreen(&screens[4], "SafetySafe", LEDEncryptionImage1, LEDEncryptionImage2, initSafetySafe, procSafetySafe);
-    makeScreen(&screens[5], "Morsematics", LEDEncryptionImage1, LEDEncryptionImage2, initMorsematics, procMorsematics);
-    makeScreen(&screens[6], "Calculator", LEDEncryptionImage1, LEDEncryptionImage2, initCalculator, procCalculator);
+    makeScreen(&screens[1], "SkewedSlots", SkewedSlots1, SkewedSlots2, initSkewedSlots, procSkewedSlots);
+    makeScreen(&screens[2], "BombStuff", BombStuffImage, BombStuffImage, initBombStuffSetter, procBombStuff);
+    makeScreen(&screens[3], "LetterDisp", LetterDispImage, LetterDispImage, initLetterDisp, procLetterDisp);
+    makeScreen(&screens[4], "SafetySafe", SafetySafeImage1, SafetySafeImage2, initSafetySafe, procSafetySafe);
+    makeScreen(&screens[5], "Morsematics", MorsematicsImage1, MorsematicsImage2, initMorsematics, procMorsematics);
+    makeScreen(&screens[6], "Calculator", CalculatorImage, CalculatorImage, initCalculator, procCalculator);
 
     // such a hack but it works okay
     setCurrent(&screens[0]);
@@ -146,5 +155,12 @@ int main(void) {
     }
 
     gfx_End();
-    return 0;
+}
+
+int main(void) {
+#ifdef TEST
+	testMain();
+#else
+	runMain();
+#endif
 }

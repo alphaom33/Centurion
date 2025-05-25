@@ -51,7 +51,7 @@ void calcFinal(SkewedSlotsData* info) {
         else if (finalNums[i] > 7) finalNums[i] *= 2;
         else if (finalNums[i] < 3 && isEven(finalNums[i])) finalNums[i] /= 2;
         else if (bombStuff->ports[STEREO_RCA] || bombStuff->ports[PS2]) continue;
-        else finalNums[i] = info->nums[i] + bombStuff->numBatteries;
+        else finalNums[i] = info->nums[i] + getNumBatteries();
     }
 
     if (finalNums[0] > 5 && isEven(finalNums[0])) finalNums[0] /= 2;

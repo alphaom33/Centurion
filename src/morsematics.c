@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "keyUtils.h"
 #include "graphx.h"
+#include "stdio.h"
 
 #define MARGIN 8
 #define BOX_WIDTH ((GFX_LCD_WIDTH - MARGIN * 2) / 3)
@@ -16,17 +17,22 @@ typedef struct {
 	uint8_t chars[3];
 } MorsematicsData;
 
-void checkMatches(MorsematicsData* info, uint8_t* num1, uint8_t* num2) {
+void checkMatches(MorsematicsData* info, int8_t* num1, int8_t* num2) {
 	for (int k = 0; k < NUM_INDICATORS; k++) {
 		if (!bombStuff->indicators[k].exists) continue;
+
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 3; j++) {
 				if (bombStuff->indicators[k].name[i] == info->chars[j]) {
 					if (bombStuff->indicators[k].on) *num1 += 1;
 					else *num2 += 1;
+
+					goto nextInd;
 				}
 			}
 		}
+nextInd:
+		continue;
 	}
 }
 
@@ -41,27 +47,30 @@ uint8_t weirdWrap(uint8_t num) {
 }
 
 void calcChar(MorsematicsData* info) {
-	uint8_t num1 = bombStuff->serial[3];
-	uint8_t num2 = bombStuff->serial[4];
+	int8_t num1 = toNum(bombStuff->serial[3]);
+	int8_t num2 = toNum(bombStuff->serial[4]);
 
 	checkMatches(info, &num1, &num2);
 	num1 = weirdWrap(num1);
 	num2 = weirdWrap(num2);
 
-	if (isSquare((int8_t)(num1 + num2))) num1 += 4;
-	else num2 += 4;
+	if (isSquare(num1 + num2)) num1 += 4;
+	else num2 -= 4;
 
-	num1 += maxArrayUnsigned(info->chars, 3);
+	num1 += toNum(maxArrayUnsigned(info->chars, 3));
 
 	for (int i = 0; i < 3; i++) {
-		if (isPrime(info->chars[i])) num1 -= info->chars[i];
-		if (isSquare(info->chars[i])) num2 -= info->chars[i];
-		if (bombStuff->numBatteries > 0 && info->chars[i] % bombStuff->numBatteries == 0) {
-			num1 += info->chars[i];
-			num2 += info->chars[i];
+		int8_t charNum = toNum(charNum);
+		if (isPrime(charNum)) num1 -= charNum;
+		if (isSquare(charNum)) num2 -= charNum;
+		if (getNumBatteries() > 0 && charNum % getNumBatteries() == 0) {
+			num1 += charNum;
+			num2 += charNum;
 		}
 	}
 
+	num1 = weirdWrap(num1);
+	num2 = weirdWrap(num2);
 	info->num = weirdWrap(num1 == num2 ? num1 : num1 > num2 ? num1 - num2 : num1 + num2) - 1 + 'A';
 }
 
@@ -112,4 +121,45 @@ void procMorsematics(void* data) {
 			gfx_PrintChar(info->chars[i]);
 		}
 	}
+}
+
+void testMatches(void) {
+#define REINIT() 
+#define SETUP_TEST() do { \
+	num1 = 1, num2 = 1; \
+	initBombStuff(); \
+	{ \
+		MorsematicsData redata = {0, {0, 0, 0}}; \
+		info = redata; \
+	} \
+} while (false)
+
+#define RUN_TEST(name) do { \
+	num1 = weirdWrap(num1); \
+	num2 = weirdWrap(num2); \
+	printf("%s: %d, %d\n", name, num1, num2); \
+} while (false)
+
+	MorsematicsData info;
+
+	int8_t num1, num2;
+
+	SETUP_TEST();
+	checkMatches(&info, &num1, &num2);
+	RUN_TEST("basic");
+
+	SETUP_TEST();
+	bombStuff->serial[0] = 'S';
+	info.chars[0] = 'S';
+	bombStuff->indicators[SIG].exists = true;
+	checkMatches(&info, &num1, &num2);
+	RUN_TEST("sigOff");
+
+	SETUP_TEST();
+	bombStuff->serial[0] = 'S';
+	info.chars[0] = 'S';
+	bombStuff->indicators[SIG].exists = true;
+	bombStuff->indicators[SIG].on = true;
+	checkMatches(&info, &num1, &num2);
+	RUN_TEST("sigOn");
 }

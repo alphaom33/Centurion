@@ -25,6 +25,15 @@ converts:
     images:
       - LEDEncryptionImage1.png
       - LEDEncryptionImage2.png
+      - SkewedSlots1.png
+      - SkewedSlots2.png
+      - BombStuffImage.png
+      - LetterDispImage.png
+      - SafetySafeImage1.png
+      - SafetySafeImage2.png
+      - MorsematicsImage1.png
+      - MorsematicsImage2.png
+      - CalculatorImage.png
       - IndicatorOff.png
       - IndicatorOn.png
       - DVIDImage.png

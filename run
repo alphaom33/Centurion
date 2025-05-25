@@ -1,0 +1,9 @@
+if [[ $1 == "test" ]]; then
+	echo "Building test"
+	rm obj/src/main.c.bc
+	make CFLAGS=-DTEST=true
+elif [[ $1 == "main" ]]; then
+	echo "Building main"
+	rm obj/src/main.c.bc
+	make
+fi

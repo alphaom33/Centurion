@@ -80,10 +80,23 @@ uint8_t powUnsigned(uint8_t a, uint8_t b) {
 	return out;
 }
 
+int powInt(int a, int b) {
+	int out = 1;
+	for (int i = 0; i < b; i++) {
+		out *= a;
+	}
+
+	return out;
+}
+
 void itoa(int8_t num, char* buf) {
 	sprintf(buf, "%d", num);
 }
 
 void itoaUnsigned(uint8_t num, char* buf) {
+	sprintf(buf, "%u", num);
+}
+
+void itoaUnsignedInt(int num, char* buf) {
 	sprintf(buf, "%u", num);
 }

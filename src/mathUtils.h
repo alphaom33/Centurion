@@ -21,8 +21,10 @@ uint8_t maxArrayUnsigned(uint8_t* nums, uint8_t length);
 
 int8_t pow(int8_t a, int8_t b);
 uint8_t powUnsigned(uint8_t a, uint8_t b);
+int powInt(int a, int b);
 
 void itoa(int8_t num, char* buf);
 void itoaUnsigned(uint8_t num, char* buf);
+void itoaUnsignedInt(int num, char* buf);
 
 #endif

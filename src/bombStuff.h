@@ -39,10 +39,12 @@ typedef enum {
 
 typedef struct {
     char serial[SERIAL_LENGTH + 1];
-    uint8_t numBatteries;
+    uint8_t numAA;
+    uint8_t numD;
     uint8_t numBatteryHolders;
     Indicator indicators[NUM_INDICATORS];
     bool ports[NUM_PORTS];
+	bool duplicates;
 } BombStuff;
 
 extern BombStuff* bombStuff;
@@ -55,5 +57,7 @@ uint8_t getLastSerialNumber();
 uint8_t getLargestSerialNumber();
 
 bool indicatorInSerial(Indicator indicator);
+
+uint8_t getNumBatteries();
 
 #endif

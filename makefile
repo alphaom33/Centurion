@@ -1,7 +1,3 @@
-# ----------------------------
-# Makefile Options
-# ----------------------------
-
 NAME = DEMO
 ICON = icon.png
 DESCRIPTION = "CE C Toolchain Demo"
@@ -11,5 +7,4 @@ CFLAGS = -Wall -Wextra -Oz
 CXXFLAGS = -Wall -Wextra -Oz
 
 # ----------------------------
-
 include $(shell cedev-config --makefile)
