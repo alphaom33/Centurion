@@ -4,7 +4,8 @@
 #include "stdint.h"
 #include "stdbool.h"
 
-uint8_t wrap(uint8_t num, uint8_t max);
+int8_t wrap(int8_t num, int8_t max);
+uint8_t wrapUnsigned(uint8_t num, uint8_t max);
 
 bool inFibonacci(int8_t num);
 int8_t nextFibonacci(int8_t num);

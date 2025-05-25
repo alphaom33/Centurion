@@ -42,7 +42,7 @@ uint8_t toNum(char c) {
 	else return c - 'A' + 1;
 }
 
-uint8_t weirdWrap(uint8_t num) {
+uint8_t weirdWrap(int8_t num) {
 	return wrap(num - 1, 26) + 1;
 }
 
@@ -54,24 +54,29 @@ void calcChar(MorsematicsData* info) {
 	num1 = weirdWrap(num1);
 	num2 = weirdWrap(num2);
 
-	if (isSquare(num1 + num2)) num1 += 4;
+	if (isSquare(weirdWrap(num1 + num2))) num1 += 4;
 	else num2 -= 4;
 
 	num1 += toNum(maxArrayUnsigned(info->chars, 3));
 
 	for (int i = 0; i < 3; i++) {
-		int8_t charNum = toNum(charNum);
+		int8_t charNum = toNum(info->chars[i]);
 		if (isPrime(charNum)) num1 -= charNum;
 		if (isSquare(charNum)) num2 -= charNum;
 		if (getNumBatteries() > 0 && charNum % getNumBatteries() == 0) {
-			num1 += charNum;
-			num2 += charNum;
+			num1 -= charNum;
+			num2 -= charNum;
 		}
 	}
 
 	num1 = weirdWrap(num1);
 	num2 = weirdWrap(num2);
-	info->num = weirdWrap(num1 == num2 ? num1 : num1 > num2 ? num1 - num2 : num1 + num2) - 1 + 'A';
+	int8_t result = num1 == num2
+				? num1 
+				: num1 > num2
+					? num1 - num2
+					: num1 + num2;
+	info->num = weirdWrap(result) - 1 + 'A';
 }
 
 void reinitMorsematics(MorsematicsData* info) {
@@ -124,7 +129,6 @@ void procMorsematics(void* data) {
 }
 
 void testMatches(void) {
-#define REINIT() 
 #define SETUP_TEST() do { \
 	num1 = 1, num2 = 1; \
 	initBombStuff(); \
@@ -162,4 +166,21 @@ void testMatches(void) {
 	bombStuff->indicators[SIG].on = true;
 	checkMatches(&info, &num1, &num2);
 	RUN_TEST("sigOn");
+
+	SETUP_TEST();
+	num1 = weirdWrap(27);
+	num2 = weirdWrap(-1);
+	RUN_TEST("wrap");
+
+	SETUP_TEST();
+	info.chars[0] = 'A';
+	info.chars[1] = 'Z';
+	info.chars[2] = 'B';
+	printf("Max: %d\n", toNum(maxArrayUnsigned(info.chars, 3)));
+
+	printf("squares: %d, %d, %d, %d, %d\n", isSquare(1), isSquare(4), isSquare(3), isSquare(9), isSquare(16));
+	printf("toNum: %d, %d, %d, %d, %d\n", toNum('A'), toNum('Z'), toNum('0'), toNum('1'), toNum('9'));
+
+#undef SETUP_TEST
+#undef RUN_TEST
 }

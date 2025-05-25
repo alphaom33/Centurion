@@ -3,7 +3,10 @@
 
 const int8_t fibonaccis[] = {1, 1, 2, 3, 5, 8, 13, 21};
 
-uint8_t wrap(uint8_t num, uint8_t max) {
+int8_t wrap(int8_t num, int8_t max) {
+    return (num % max + max) % max;
+}
+uint8_t wrapUnsigned(uint8_t num, uint8_t max) {
     return (num % max + max) % max;
 }
 
@@ -26,8 +29,8 @@ int8_t nextFibonacci(int8_t num) {
 }
 
 bool isPrime(int8_t num) {
-    const int8_t primes[] = {2, 3, 5, 7, 11, 13};
-    return isInArray(num, primes, 6);
+    const int8_t primes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23};
+    return isInArray(num, primes, 9);
 }
 
 bool isEven(int8_t num) {
@@ -40,8 +43,8 @@ int8_t addBinaryDigits(int8_t num) {
 }
 
 bool isSquare(int8_t num) {
-	const int8_t squares[] = {1, 4, 9, 16, 25};
-	return isInArray(num, squares, 5);
+	const int8_t squares[] = {1, 4, 9, 16, 25, 36, 49};
+	return isInArray(num, squares, 7);
 }
 
 int8_t maxArray(int8_t* nums, uint8_t length) {

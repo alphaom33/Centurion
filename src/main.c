@@ -62,9 +62,9 @@ void defaultDraw(Screen* screens) {
         num = 0;
         return;
     } else if (getKeyDown(kb_KeyUp)) {
-        num = wrap(num - 1, NUM_SCREENS);
+        num = wrapUnsigned(num - 1, NUM_SCREENS);
     } else if (getKeyDown(kb_KeyDown)) {
-        num = wrap(num + 1, NUM_SCREENS);
+        num = wrapUnsigned(num + 1, NUM_SCREENS);
     }
 
     clock_t time = clock() / 5000;
