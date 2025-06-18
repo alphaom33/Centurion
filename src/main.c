@@ -21,8 +21,9 @@
 #include "safetySafe.h"
 #include "morsematics.h"
 #include "calculator.h"
+#include "sillySlots.h"
 
-#define NUM_SCREENS 7
+#define NUM_SCREENS 8
 
 #define MENU_START 0
 #define MENU_MARGIN 8
@@ -132,7 +133,8 @@ void runMain(void) {
     makeScreen(&screens[3], "LetterDisp", LetterDispImage, LetterDispImage, initLetterDisp, procLetterDisp);
     makeScreen(&screens[4], "SafetySafe", SafetySafeImage1, SafetySafeImage2, initSafetySafe, procSafetySafe);
     makeScreen(&screens[5], "Morsematics", MorsematicsImage1, MorsematicsImage2, initMorsematics, procMorsematics);
-    makeScreen(&screens[6], "Calculator", CalculatorImage, CalculatorImage, initCalculator, procCalculator);
+	makeScreen(&screens[6], "SillySlots", SkewedSlots1, SkewedSlots1, initSillySlots, procSillySlots);
+    makeScreen(&screens[7], "Calculator", CalculatorImage, CalculatorImage, initCalculator, procCalculator);
 
     // such a hack but it works okay
     setCurrent(&screens[0]);
